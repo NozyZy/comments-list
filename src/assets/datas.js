@@ -1,51 +1,23 @@
 import axios from "axios";
+const url = 'http://localhost:5000'
+
 export default {
 
-    // comments : [
-    //     {
-    //         id: 1,
-    //         name: 'Michel',
-    //         title: 'Ce reve bleu',
-    //         description: 'Lorem ipsum ton père en short',
-    //         hidden: false,
-    //     },
-    //     {
-    //         id: 2,
-    //         name: 'Michel',
-    //         title: 'Ce fake bleu',
-    //         description: 'Lorem Ipsum jest tekstem stosowanym jako przykładowy wypełniacz w przemyśle poligraficznym. Został po raz pierwszy użyty w XV w. przez nieznanego drukarza do wypełnienia tekstem próbnej książki. Pięć wieków później zaczął być używany przemyśle elektronicznym, pozostając praktycznie niezmienionym. Spopularyzował się w latach 60. XX w. wraz z publikacją arkuszy Letrasetu, zawierających fragmenty Lorem Ipsum, a ostatnio z zawierającym różne wersje Lorem Ipsum oprogramowaniem przeznaczonym do realizacji druków na komputerach osobistych, jak Aldus PageMaker',
-    //         hidden: false,
-    //     },
-    //     {
-    //         id: 3,
-    //         name: 'Faustonks',
-    //         title: 'Stonks',
-    //         description: 'Zabka stonks',
-    //         hidden: false,
-    //     },
-    //     {
-    //         id: 4,
-    //         name: 'Faustaverage',
-    //         title: 'Dips go deeper',
-    //         description: 'Je fais des dips',
-    //         hidden: false,
-    //     },
-    //     {
-    //         id: 5,
-    //         name: 'Faustinsignifiant',
-    //         title: 'Suis-je ?',
-    //         description: 'Oh merde',
-    //         hidden: false,
-    //     },
-    // ],
-    api: 'http://localhost:5000/api/comments',
+    api: url + '/api/comments',
+    auth: url + '/auth',
+    options: {
+        method: 'get',
+        headers: new Headers({'content-type': 'application/json', 'Authorization': localStorage.getItem("user")}),
+    },
+
     async getAll() {
-        return fetch(this.api)
+
+        return fetch(this.api, this.options)
             .then(data => data.json())
             .then(json => { return json });
     },
     async find(name) {
-        return fetch(this.api + '/find?name=' + name)
+        return fetch(this.api + '/find?name=' + name, this.options)
             .then(data => data.json())
             .then(json => { return json });
     },
@@ -54,7 +26,8 @@ export default {
             method: 'post',
             url: this.api + '/create',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem("user"),
             },
             data: data
         });
@@ -64,7 +37,8 @@ export default {
             method: 'post',
             url: this.api + '/update?id=' + id + '&hidden=' + hidden,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem("user"),
             },
         });
     },
@@ -73,8 +47,40 @@ export default {
             method: 'delete',
             url: this.api + '/delete?id=' + id,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem("user"),
             },
         });
+    },
+    register(newUser) {
+        axios({
+            method: 'post',
+            url: this.auth + '/register',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: newUser
+        });
+    },
+    login(creds) {
+        const res = axios({
+            method: 'post',
+            url: this.auth + '/login',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: creds
+        });
+        res.then(res => {
+            if (res.status === 200) {
+                let token = 'JWT ' + res.data.token;
+                localStorage.setItem("user", token);
+                this.$router.push("/home");
+            }
+        })
+            .catch(err => {
+                console.error(err);
+            });
+        return res;
     }
 }

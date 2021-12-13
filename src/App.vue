@@ -64,7 +64,6 @@ button:active {
   padding-bottom: 25px;
 }
 
-
 input, textarea {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 16px;
