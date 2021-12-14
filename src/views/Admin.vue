@@ -25,7 +25,6 @@ export default {
   },
   methods:{
     banUserFunction(){
-      console.log("caca");
       const user = {
         email: datas.getUserDetails.fullName,
         role: 'ban'
