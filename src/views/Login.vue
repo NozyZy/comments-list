@@ -1,5 +1,6 @@
 <template>
   <div id="Formbody">
+    <h4></h4>
     <form id="loginForm">
       <input type="email" placeholder="Your email address" v-model="email">
       <input type="password" placeholder="Password" v-model="password">
@@ -14,16 +15,22 @@
 </template>
 
 <script>
-import datas from "../assets/datas";
+import datas from "@/assets/datas";
 
 export default {
   name: "Login",
+  created(){
+    if(datas.isAuthenticated()){
+      this.$router.push("/CommentList");
+    }
+  },
   data() {
     return {
       email: '',
       password: '',
       correct: true,
       loggedin: false,
+      done: false
     }
   },
   methods: {
@@ -35,8 +42,27 @@ export default {
           email: this.email,
           password: this.password
         }
-        datas.login(creds).then(res => this.loggedin = res.status === 200)
-        this.$forceUpdate()
+        datas.login(creds)
+            .then(() => this.loggedin = datas.getUserDetails() && datas.getUserDetails().role)
+            .then(() => {
+              console.log(this.loggedin)
+              console.log(datas.getUserDetails());
+
+              if (this.loggedin) {
+                this.correct = true;
+                this.$forceUpdate();
+                window.location.reload();
+              } else {
+                this.password = ''
+                this.correct = false
+              }
+            })
+            .catch(() => {
+              this.password = ''
+              this.correct = false
+            })
+
+
       }
     }
   }
