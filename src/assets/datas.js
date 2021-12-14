@@ -97,6 +97,17 @@ export default {
             .then(data => data.json())
             .then(json => { return json });
     },
+    updateUser(data) {
+        axios({
+            method: 'post',
+            url: this.auth + '/update',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem("user"),
+            },
+            data: data
+        });
+    },
     logout() {
         localStorage.removeItem("user");
     },
