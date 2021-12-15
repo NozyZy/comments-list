@@ -1,21 +1,22 @@
 <template>
-  <h3 v-if="userName !== 'Unspecified'">
-    Welcome, <span :class="userRole === 'admin' ? 'admin' : 'user' ">{{userName}}</span> !
-  </h3>
+  <div v-if="userName !== 'Unspecified'">
+    <h3>Welcome, <span :class="userRole.includes('admin') ? 'admin' : 'user'">{{userName}}</span> !</h3>
+    <h3 v-if="userRole === 'ban'" id="ban">You have been banned. Your actions are now restricted.</h3>
+  </div>
   <div id="nav">
     <router-link to="/CommentList">Comment List</router-link>
     |
     <router-link to="/AddComment">Add Comment</router-link>
     |
-    <div v-if="userRole==='user' || userRole==='admin'">
-      <button id="userConnectionButton" @click="logOutFunction()">Logout</button>
-      |
-    </div>
+    <button v-if="userRole !== 'disconnected'" id="userConnectionButton" @click="logOutFunction()">Logout</button>
     <div v-else>
       <router-link to="/Login">Login</router-link>|
-      <router-link to="/Register">Register</router-link>|
+      <router-link to="/Register">Register</router-link>
     </div>
-    <router-link v-if="userRole==='admin'" to="/Admin" class="admin">Admin-vue</router-link>
+    <div v-if="userRole.includes('admin')">
+      |<router-link to="/Admin" class="admin">Admin-vue</router-link>
+    </div>
+
   </div>
 </template>
 
@@ -61,10 +62,16 @@ export default {
   color: orange;
 }
 
+#ban {
+  color: crimson;
+  font-style: italic;
+}
+
 #nav {
   padding: 30px;
   display: flex;
-  justify-content:center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 #nav a, #userConnectionButton, p {
@@ -77,7 +84,8 @@ export default {
 #nav a.router-link-exact-active, #userConnectionButton:active {
   color: orange;
 }
-h3{
+
+h3 {
   padding: 5px;
   margin: 0;
 }
@@ -85,10 +93,11 @@ h3{
 #userConnectionButton {
   background-color: unset;
   font-size: 17px;
-  padding: unset;
   width: fit-content;
   height: fit-content;
   text-align: center;
-  padding-bottom: 10px;
+  padding: 0 0 10px;
 }
+
+
 </style>

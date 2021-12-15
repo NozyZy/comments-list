@@ -4,8 +4,10 @@
      <h1 id="title">{{comment.title}}</h1>
      <h2 id="author-name">by {{comment.name}}</h2>
      <div id="buttons">
-       <button type="button" @click="toggleHidden()">{{hidden ? 'Show' : 'Hide'}} description</button>
-       <button type="button" @click="remove">Delete</button>
+       <button v-if="currentUser.role.includes('admin') || currentUser.fullName === this.comment.name" type="button" @click="toggleHidden()">{{hidden ? 'Show' : 'Hide'}} description</button>
+       <button v-if="currentUser.role.includes('admin') || currentUser.fullName === this.comment.name" type="button" @click="remove">Delete</button>
+       <i class="far fa-star" v-if="!fav" @click="setFav(true)"></i>
+       <i class="fas fa-star" v-else @click="setFav(false)"></i>
      </div>
    </div>
    <div id="description">
@@ -35,6 +37,27 @@ export default {
     },
     remove() {
       this.$emit('remove_comment', this.comment.id);
+    },
+    setFav(adding) {
+      this.fav = adding;
+      let temp = []
+      this.favs = datas.getUserDetails().favs
+
+      if (adding) {
+        this.favs[this.favs.length] = this.comment.id;
+      } else {
+        for (let i = 0; i < this.favs.length; i++) {
+          if (this.favs[i] !== this.comment.id) {
+            temp.push(this.favs[i]);
+          }
+        }
+        this.favs = temp;
+      }
+      const user = {
+        email: this.currentUser.email,
+        favs: this.favs
+      }
+      datas.updateUserFav(user);
     }
   },
 }
@@ -48,7 +71,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 15px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
@@ -68,6 +91,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
+  align-items: center;
 }
 
 #description {
@@ -77,13 +101,21 @@ export default {
   text-align: justify;
 }
 
+i {
+  cursor: pointer;
+}
+
+.fas {
+  color: orange;
+}
+
 @media (max-width: 1200px) {
   #buttons {
     flex-direction: column;
     align-items: center;
   }
 
-  button {
+  #buttons > * {
     margin: 5px;
     width: 100px;
   }

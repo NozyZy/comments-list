@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div v-if="userRole !== 'ban'" class="container">
     <form v-on:submit.prevent="onSubmit">
       <div class="formItem">
         <label for="author">Author's name</label>
@@ -19,6 +19,9 @@
       <h2>You comment has been added !</h2>
       <Comment :comment="newComment" />
     </div>
+  </div>
+  <div v-else>
+    <h1> You have been banned, and cannot add comments.</h1>
   </div>
 </template>
 

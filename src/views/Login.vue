@@ -1,13 +1,14 @@
 <template>
   <div id="Formbody">
-    <h4></h4>
+    <h4>You must be logged in to add comments.</h4>
     <form id="loginForm">
       <input type="email" placeholder="Your email address" v-model="email">
       <input type="password" placeholder="Password" v-model="password">
-      <p class="inputMsg" v-if="!correct">Incorrect password</p>
       <button type="submit" @click.prevent="loginFunction">Login</button>
+      <p class="inputMsg" id="error" v-if="!correct">Incorrect password or email !</p>
+      <p class="inputMsg" id="confirm" v-if="loggedin">Successfully logged in !</p>
     </form>
-    <p v-if="loggedin">Successfully logged in !</p>
+
     <p>Do not have an account yet?
       <router-link to="/register">Click here</router-link>
     </p>
@@ -40,13 +41,11 @@ export default {
       } else {
         const creds = {
           email: this.email,
-          password: this.password
+          password: this.password.toLowerCase()
         }
         datas.login(creds)
             .then(() => this.loggedin = datas.getUserDetails() && datas.getUserDetails().role)
             .then(() => {
-              console.log(this.loggedin)
-              console.log(datas.getUserDetails());
 
               if (this.loggedin) {
                 this.correct = true;
@@ -92,10 +91,20 @@ export default {
 }
 
 p {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .inputMsg {
+  width: 75%;
+  text-align: center;
+}
+
+#error {
   color: red;
 }
+
+#confirm {
+  color: limegreen;
+}
+
 </style>
