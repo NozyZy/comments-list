@@ -20,10 +20,15 @@
 </template>
 
 <script>
-import datas from "../assets/datas";
+import datas from "@/assets/datas";
 
 export default {
   name: "Register",
+  created() {
+    if (datas.isAuthenticated()) {
+      this.$router.push("/CommentList");
+    }
+  },
   data() {
     return {
       name: '',
@@ -61,31 +66,27 @@ export default {
         this.errors.push('Your name must contains at least 2 characters.')
       }
       if (!this.errors.length) {
-        this.newUser.fullName = this.name
-        this.newUser.email = this.email.toLowerCase()
-        this.newUser.password = this.password1
-
+        this.newUser.fullName = this.name;
+        this.newUser.email = this.email.toLowerCase();
+        this.newUser.password = this.password1;
         datas.register(this.newUser)
             .then(res => this.confirm = res.status === 200)
             .then(() => {
               if (this.confirm) {
-                datas.login({
-                  email: this.email,
-                  password: this.password1
-                });
 
                 this.name = ''
                 this.email = ''
                 this.password1 = ''
                 this.password2 = ''
 
-                this.$forceUpdate();
-                window.location.reload();
+                datas.logout()
+                datas.login(this.newUser)
+                    .then(() => window.location.reload())
               }
             })
             .catch(() => {
               if (!this.confirm) {
-                this.errors.push('This email is already taken !')
+                this.errors.push('This email or username is already taken !')
               } else {
                 this.errors.push('Server error, contact an admin.')
               }

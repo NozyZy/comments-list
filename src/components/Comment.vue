@@ -3,15 +3,20 @@
    <div id="infos">
      <h1 id="title">{{comment.title}}</h1>
      <h2 id="author-name">by {{comment.name}}</h2>
-     <div id="buttons">
-       <button v-if="currentUser.role.includes('admin') || currentUser.fullName === this.comment.name" type="button" @click="toggleHidden()">{{hidden ? 'Show' : 'Hide'}} description</button>
+     <div id="buttons" v-if="currentUser.role !== 'disconnected'">
+       <button v-if="currentUser.role.includes('admin') || currentUser.fullName === this.comment.name" type="button" @click="toggleHidden">{{hidden ? 'Show' : 'Hide'}} description</button>
        <button v-if="currentUser.role.includes('admin') || currentUser.fullName === this.comment.name" type="button" @click="remove">Delete</button>
+       <button type="button" id="button-ask-edit" @click="editing = !editing" v-if="(currentUser.role.includes('admin') || currentUser.fullName === this.comment.name) && !editing">Edit</button>
        <i class="far fa-star" v-if="!fav" @click="setFav(true)"></i>
        <i class="fas fa-star" v-else @click="setFav(false)"></i>
      </div>
    </div>
-   <div id="description">
-     <p v-if="!hidden">{{comment.description}}</p>
+   <div id="description-edit" v-if="(currentUser.role.includes('admin') || currentUser.fullName === this.comment.name) && editing">
+     <textarea name="description" id="text-edit" v-model="description"></textarea>
+     <button type="button" id="button-edit" @click="updateComment()">Edit</button>
+   </div>
+   <div id="description" v-else>
+     <p v-if="!hidden">{{description}}</p>
    </div>
 
  </div>
@@ -31,9 +36,13 @@ export default {
     comment: Object,
   },
   methods: {
+    updateComment() {
+      datas.updateComment(this.comment.id, this.hidden, this.description);
+      this.editing = false;
+    },
     toggleHidden() {
       this.hidden = !this.hidden;
-      datas.toggleHidden(this.comment.id, this.hidden);
+      datas.updateComment(this.comment.id, this.hidden, this.description);
     },
     remove() {
       this.$emit('remove_comment', this.comment.id);
@@ -47,7 +56,7 @@ export default {
         this.favs[this.favs.length] = this.comment.id;
       } else {
         for (let i = 0; i < this.favs.length; i++) {
-          if (this.favs[i] !== this.comment.id) {
+          if (this.favs[i] !== this.comment.id && this.favs[i] !== '') {
             temp.push(this.favs[i]);
           }
         }
@@ -94,11 +103,17 @@ export default {
   align-items: center;
 }
 
+#buttons > * {
+  margin: 3px;
+}
+
 #description {
   padding: 15px;
   flex-basis: 75%;
   font-size: 1.2em;
   text-align: justify;
+  display: flex;
+  flex-direction: column;
 }
 
 i {
@@ -107,6 +122,28 @@ i {
 
 .fas {
   color: orange;
+}
+
+#description-edit {
+  flex-basis: 75%;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#description-edit > * {
+  margin: 5px;
+}
+
+#text-edit {
+  width: 95%;
+  height: 175px;
+}
+
+#button-edit {
+  align-self: flex-end;
 }
 
 @media (max-width: 1200px) {
@@ -146,6 +183,16 @@ i {
 
   button {
     width: 125px;
+  }
+
+  #description-edit {
+    width: 85%;
+  }
+}
+
+@media (max-width: 375px) {
+  #buttons {
+    flex-direction: column;
   }
 }
 

@@ -1,51 +1,50 @@
 import axios from 'axios';
 import VueJwtDecode from 'vue-jwt-decode';
 
-const url = 'http://192.168.84.250:5000'
+const url = 'http://localhost:5000'
 
 export default {
-
     api: url + '/api/comments',
     auth: url + '/auth',
-    loggedin:false,
+    loggedin: false,
     options: {
         method: 'get',
         headers: new Headers({'content-type': 'application/json', 'Authorization': localStorage.getItem('user')}),
     },
     async getAll() {
-        let favs = await this.getFavs(this.getUserDetails().email, true)
-        favs = favs ? favs.toString() : ''
-        localStorage.setItem('favs', favs)
+        if (this.isAuthenticated()) {
+            let favs = await this.getFavs(this.getUserDetails().email, true);
+            favs = favs ? favs.toString() : '';
+            localStorage.setItem('favs', favs);
+        }
         return fetch(this.api, this.options)
             .then(res => {
                 if (res.status === 200) {
                     return res.json();
-                }
-                else return 'empty';
+                } else return 'empty';
             });
     },
     async getFavComms() {
-        let a = await this.getAll()
-        let b = []
-        let c = await this.getFavs(this.getUserDetails().email, false)
+        let a = await this.getAll();
+        let b = [];
+        let c = await this.getFavs(this.getUserDetails().email, false);
         a.forEach(e => c.forEach(i => {
-            if (e.id === i) b.push(e)
+            if (e.id === i) b.push(e);
         }))
-        return b
+        return b;
     },
     async find(name) {
         return fetch(this.api + '/find?name=' + name, this.options)
             .then(res => {
                 if (res.status === 200) {
                     return res.json();
-                }
-                else return 'empty';
+                } else return 'empty';
             });
     },
     create(data) {
         axios({
             method: 'post',
-            url: this.api + '/create',
+            url: this.api,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem('user'),
@@ -53,20 +52,26 @@ export default {
             data: data
         });
     },
-    toggleHidden(id, hidden) {
+    updateComment(id, hidden, description) {
+        const updateComm = {
+            id: id,
+            hidden: hidden,
+            description: description
+        };
         axios({
-            method: 'post',
-            url: this.api + '/update?id=' + id + '&hidden=' + hidden,
+            method: 'put',
+            url: this.api,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem('user'),
             },
+            data: updateComm
         });
     },
     delete(id) {
         axios({
             method: 'delete',
-            url: this.api + '/delete?id=' + id,
+            url: this.api + '?id=' + id,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem('user'),
@@ -120,8 +125,7 @@ export default {
             .then(res => {
                 if (res.status === 200) {
                     return res.json();
-                }
-                else return null;
+                } else return null;
             });
     },
     async getFavs(email, bool) {
@@ -130,8 +134,7 @@ export default {
                 .then(res => {
                     if (res.status === 200) {
                         return res.json();
-                    }
-                    else return null;
+                    } else return null;
                 });
         } else {
             return localStorage.getItem('favs').split(',');
@@ -168,7 +171,7 @@ export default {
     isAuthenticated() {
         return localStorage.getItem('user') && this.getUserDetails()
     },
-    isAdminUser(){
+    isAdminUser() {
         return localStorage.getItem('user') && this.getUserDetails().role.includes('admin')
     }
 }

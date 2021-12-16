@@ -6,19 +6,22 @@
         <input type="text" name="author" id="author" placeholder="Search..." minlength="1" maxlength="25" v-model="searchName">
         <button type="submit" id="search" class="searchButton">Search</button>
         <button type="reset" id="reset" class="searchButton">Reset</button>
-        <button type="button" id="favorites" class="searchButton" @click="showFavs">Favorites</button>
+        <button type="button" id="favorites" class="searchButton" :class="fav ? 'glass' : ''" @click="showFavs">Favorites</button>
       </div>
     </form>
     <div v-if="comments === 'empty'">
-      <h1 v-if="!name">There is no comments. Come add some <router-link to="/AddComment">here !</router-link></h1>
-      <h1 v-else>There is no comments written by <span id="name">{{name}}</span>.</h1>
+      <h1 v-if="!name">There is no comments. Come add some
+        <router-link to="/AddComment">here !</router-link>
+      </h1>
+      <h1 v-else>There is no comments written by <span id="name">{{ name }}</span>.</h1>
     </div>
     <ul v-else v-for="comment of comments" :key="comment.id" id="comment-list">
       <Comment :comment="comment" @remove_comment="remove_comment" @add_comment="add_comment"/>
     </ul>
   </div>
   <div v-else class="container">
-    <h1>Loading...</h1>
+    <h1 v-if="error">An error occured. Check your connectivity or contact an admin.</h1>
+    <h1 v-else>Loading...</h1>
   </div>
 </template>
 
@@ -28,17 +31,22 @@ import datas from "@/assets/datas";
 import Comment from "@/components/Comment";
 
 export default {
-  components: { Comment },
+  components: {Comment},
   name: "CommentList",
   async created() {
-    this.comments = await datas.getAll();
+    this.comments = await datas.getAll()
+        .catch(() => {
+          this.error = true;
+        })
+    this.comments.reverse();
   },
   data() {
     return {
       comments: '',
       searchName: '',
       name: '',
-      fav: false
+      fav: false,
+      error: false,
     }
   },
   methods: {
@@ -46,13 +54,15 @@ export default {
       const before = this.comments.length;
       datas.updateUserFav({
         email: datas.getUserDetails().email,
-        favs: datas.getUserDetails().favs.filter(e => e !== id)
+        favs: datas.getUserDetails().favs.filter(e => e !== id),
       })
       datas.delete(id);
       while (before === this.comments.length) {
         this.comments = await datas.getAll();
       }
       this.$forceUpdate();
+      if (this.comments.length === 0) this.comments = 'empty';
+      else this.comments.reverse();
     },
     add_comment(newComment) {
       datas.create(newComment);
@@ -69,12 +79,14 @@ export default {
     },
     async onReset() {
       this.comments = await datas.getAll();
+      this.comments.reverse();
       this.searchName = '';
       this.name = '';
       this.fav = false;
     },
     async showFavs() {
       this.comments = await datas.getFavComms();
+      this.comments.reverse();
       this.fav = true;
     }
   },
@@ -128,6 +140,7 @@ button {
 #name {
   color: orange;
 }
+
 
 @media (max-width: 750px) {
   #searchForm {

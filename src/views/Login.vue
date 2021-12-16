@@ -36,12 +36,12 @@ export default {
   },
   methods: {
     loginFunction() {
-      if (this.password.length < 2) {
+      if (this.password.length < 8) {
         this.correct = false;
       } else {
         const creds = {
           email: this.email,
-          password: this.password.toLowerCase()
+          password: this.password
         }
         datas.login(creds)
             .then(() => this.loggedin = datas.getUserDetails() && datas.getUserDetails().role)

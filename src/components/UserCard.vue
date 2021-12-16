@@ -80,7 +80,7 @@ button, #you {
   width: 125px;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 600px) {
   .userCard {
     flex-direction: column;
   }
@@ -100,6 +100,18 @@ button, #you {
 
   #you {
     align-self: center;
+  }
+}
+
+@media (max-width: 375px) {
+  .buttons {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .buttons > * {
+    margin: 5px;
   }
 }
 
