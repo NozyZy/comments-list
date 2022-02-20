@@ -1,11 +1,18 @@
 <template>
-  <div id="nav">
-    <router-link to="/AddComment">Add Comment</router-link> |
-    <router-link to="/CommentList">Comment List</router-link>
-  </div>
+  <Navbar/>
   <router-view/>
 </template>
 
+<script>
+import Navbar from "@/components/Navbar.vue"
+
+export default {
+  name: "app",
+  components: {
+    Navbar
+  }
+}
+</script>
 <style>
 * {
   box-sizing: border-box;
@@ -20,23 +27,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: white;
+  color: #ffffff;
   background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("https://wallpaperaccess.com/full/342303.png") fixed no-repeat;
   min-height: 100vh;
   margin: 0;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: darkgray;
-}
-
-#nav a.router-link-exact-active {
-  color: orange;
 }
 
 button {

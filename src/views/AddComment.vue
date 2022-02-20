@@ -2,10 +2,6 @@
   <div v-if="userRole !== 'ban'" class="container">
     <form v-on:submit.prevent="onSubmit">
       <div class="formItem">
-        <label for="author">Author's name</label>
-        <input type="text" name="author" id="author" placeholder="Name" minlength="1" maxlength="25" v-model="newComment.name" required>
-      </div>
-      <div class="formItem">
         <label for="title">Comment's title</label>
         <input type="text" name="title" id="title" placeholder="Title" minlength="1" maxlength="40" v-model="newComment.title" required>
       </div>
@@ -17,7 +13,7 @@
     </form>
     <div v-if="submitted" class="newComment">
       <h2>You comment has been added !</h2>
-      <Comment :comment="newComment" />
+      <Comment :comment="temporaryComment" />
     </div>
   </div>
   <div v-else>
@@ -35,17 +31,31 @@ export default {
   data() {
     return {
       newComment: {
-        name: '',
+        name: datas.getUserDetails().fullName,
         title: '',
         description: '',
       },
       submitted: false,
+      temporaryComment: {
+        name: '',
+        title: '',
+        description: '',
+      },
+      userRole: datas.getUserDetails().role
     }
   },
   methods: {
     onSubmit() {
       datas.create(this.newComment);
+      this.temporaryComment = {
+        name: this.newComment.name,
+        title: this.newComment.title,
+        description: this.newComment.description,
+      };
       this.submitted = true;
+      this.newComment.name = '';
+      this.newComment.title = '';
+      this.newComment.description = '';
     }
   }
 }

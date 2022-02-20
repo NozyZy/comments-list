@@ -1,5 +1,17 @@
 # efrei-students-comments
 
+## Work done by
+- Quentin VINCENt
+- Faustin DEWAS
+- Martin GAYET
+
+# Admin creds
+
+```
+email: admin@admin.net
+passwd: Admin123--
+```
+
 ## Project setup
 ```
 npm install

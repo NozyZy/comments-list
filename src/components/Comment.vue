@@ -27,9 +27,29 @@ import datas from "@/assets/datas";
 
 export default {
   name: "Comment",
+  async created() {
+    if (datas.isAuthenticated()) {
+      this.currentUser = datas.getUserDetails();
+      this.favs = this.currentUser.favs;
+      for (let f of this.favs) {
+        if (f === this.comment.id) this.fav = true;
+      }
+    } else {
+      this.currentUser = {
+        name: 'disconnected',
+        role: 'disconnected'
+      }
+    }
+    this.description = this.comment.description
+  },
   data() {
     return {
       hidden: this.comment.hidden,
+      currentUser: '',
+      favs: [],
+      fav: false,
+      description: '',
+      editing: false
     }
   },
   props: {
